@@ -1,0 +1,21 @@
+.tt-ibeam {
+  position: relative;
+}
+.tt-ibeam:before {
+  content: "";
+  background: red;
+  position: absolute;
+  height: 1em;
+  width: 2px;
+  top: 0;
+  left: 0;
+}
+
+.tt-input {
+  outline: none;
+  opacity: 0.2;
+  font-family: "Menlo";
+}
+.tt-input:focus {
+  opacity: 1;
+}
