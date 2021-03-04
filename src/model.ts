@@ -1,4 +1,4 @@
-import { RefObject, useEffect, useState } from "react";
+import { RefObject, useEffect, useMemo, useState } from "react";
 
 type Snap = {
   ts: number;
@@ -35,7 +35,7 @@ function useTypingComparison(wanted: string) {
   const [typedSnaps, setTypedSnaps] = useState<Snap[]>([]);
   const [typedWords, setTypedWords] = useState<string[]>([]);
   const [activeWord, setActiveWord] = useState("");
-  const wantedWords = wanted.split(" ");
+  const wantedWords = useMemo(() => wanted.split(" "), [wanted]);
   const [wantedWordI, setWantedWordI] = useState(0);
   const [wantedCharI, setWantedCharI] = useState(0);
   const wantedWord = wantedWords[wantedWordI];
@@ -56,7 +56,7 @@ function useTypingComparison(wanted: string) {
         setTypedWords((w) => w.slice(0, -1)); // Delete last word
         setActiveWord(lastTypedWord); // Set old typed word to active word
         setWantedWordI(newWordI);
-        setWantedCharI(wantedWords[newWordI].length);
+        setWantedCharI(lastTypedWord.length);
       } else {
         setActiveWord((w) => w.slice(0, -1));
         setWantedCharI((i) => Math.max(0, i - 1));
@@ -131,10 +131,14 @@ function useTypingComparison(wanted: string) {
     setTypedSnaps([]);
   }
 
-  const toType = wantedWords.slice(wantedWordI).join(" ").slice(wantedCharI);
+  const toType = () =>
+    wantedWords.slice(wantedWordI).join(" ").slice(wantedCharI);
 
   return {
-    typed: [...typedWords, activeWord].join(" "),
+    typed: () => [...typedWords, activeWord].join(" "),
+    typedWords,
+    activeWord,
+    wantedWords,
     typedSnaps,
     toType,
     deleteChar,

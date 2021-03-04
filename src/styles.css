@@ -19,3 +19,31 @@
 .tt-input:focus {
   opacity: 1;
 }
+
+.tt-blink-none {
+  /* border-right-color: red !important; */
+  animation: blink-animation 1000ms;
+}
+
+.tt-blink {
+  /* border-right-color: red !important; */
+  animation: blink-animation 500ms infinite;
+}
+
+@keyframes blink-animation {
+  0% {
+    opacity: 0;
+  }
+  25% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  75% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
