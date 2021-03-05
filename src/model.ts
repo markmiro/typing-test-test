@@ -1,4 +1,4 @@
-import { RefObject, useEffect, useMemo, useState } from "react";
+import React, { RefObject, useMemo, useState } from "react";
 
 type Snap = {
   ts: number;
@@ -158,42 +158,30 @@ export function useTypingComparisonView(
 ) {
   const comparison = useTypingComparison(wanted);
 
-  useEffect(() => {
-    if (!inputRef || !inputRef.current) return;
-    inputRef.current.tabIndex = 0;
+  function handleKeyDown(e: React.KeyboardEvent<HTMLDivElement>) {
+    if (!isKeyAllowed(e.key)) return;
+    // Prevent scrolling when pressing space
+    if (e.key === " ") e.preventDefault();
 
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (!isKeyAllowed(e.key)) return;
-      // Prevent scrolling when pressing space
-      if (e.key === " ") e.preventDefault();
-
-      const ts = e.timeStamp;
-      switch (e.key) {
-        case "Backspace":
-          // CTRL is for Windows OS
-          if (e.altKey || e.ctrlKey) {
-            comparison.deleteWord(ts);
-          } else {
-            comparison.deleteChar(ts);
-          }
-          break;
-        default:
-          if (e.key === " ") {
-            comparison.space(ts);
-          } else {
-            comparison.char(e.key, ts);
-          }
-          break;
-      }
-    };
-
-    const el = inputRef.current;
-    el.addEventListener("keydown", onKeyDown);
-    return () => {
-      console.log("remove listener");
-      el.removeEventListener("keydown", onKeyDown);
-    };
-  }, [inputRef, comparison]);
+    const ts = e.timeStamp;
+    switch (e.key) {
+      case "Backspace":
+        // CTRL is for Windows OS
+        if (e.altKey || e.ctrlKey) {
+          comparison.deleteWord(ts);
+        } else {
+          comparison.deleteChar(ts);
+        }
+        break;
+      default:
+        if (e.key === " ") {
+          comparison.space(ts);
+        } else {
+          comparison.char(e.key, ts);
+        }
+        break;
+    }
+  }
 
   function handleReset() {
     comparison.reset();
@@ -202,6 +190,7 @@ export function useTypingComparisonView(
 
   return {
     ...comparison,
+    handleKeyDown,
     reset: handleReset
   };
 }

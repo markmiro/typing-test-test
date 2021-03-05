@@ -15,8 +15,14 @@ function TypingTest() {
     typedSnaps,
     reset,
     wantedWordI,
-    wantedCharI
+    wantedCharI,
+    handleKeyDown
   } = useTypingComparisonView(wanted, inputRef);
+
+  useEffect(() => {
+    if (!inputRef || !inputRef.current) return;
+    inputRef.current.tabIndex = 0;
+  }, [inputRef]);
 
   useEffect(() => {
     if (!caretRef.current) return;
@@ -40,23 +46,26 @@ function TypingTest() {
         className="ba tl pa1 f3 tt-input relative flex flex-wrap"
         style={{ whiteSpace: "pre-wrap" }}
         ref={inputRef}
+        onKeyDown={handleKeyDown}
       >
         {typedWords.map((w, i) => (
-          <span className="ma1">
+          <span key={w + i} className="ma1">
             <span className="o-50">{w}</span>
             <span>{wantedWords[i].slice(w.length)}</span>
           </span>
         ))}
         {wantedWords.slice(wantedWordI).map((w, i) =>
           i === 0 ? (
-            <span className="ma1">
+            <span key={w + i} className="ma1">
               <span className="o-50" ref={caretTargetRef}>
                 {activeWord}
               </span>
               <span className="">{w.slice(wantedCharI)}</span>
             </span>
           ) : (
-            <span className="ma1">{w}</span>
+            <span key={w + i} className="ma1">
+              {w}
+            </span>
           )
         )}
         <div
