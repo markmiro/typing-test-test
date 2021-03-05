@@ -28,6 +28,7 @@ export function Words({
   };
 
   return (
+    // TODO: add resize observer to parent div so caret can be repositioned when window size changes
     <div
       // `relative` because caret is absolutely positioned
       className="tl flex flex-wrap relative"
