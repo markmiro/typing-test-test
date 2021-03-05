@@ -1,4 +1,4 @@
-export default function EnsureSpaceDoesnt() {
+export default function ExtraSpace() {
   return (
     <div>
       <div style={{ height: "100vh" }} />

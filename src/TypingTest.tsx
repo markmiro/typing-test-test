@@ -1,8 +1,8 @@
 import React, { RefObject, useReducer, useRef } from "react";
-import { Caret } from "./Caret";
 import { History } from "./History";
 import { Action, initialState, typingReducer } from "./typingReducer";
 import { isKeyAllowed } from "./typingUtils";
+import { Words } from "./Words";
 
 function useTypingKeys({
   dispatch,
@@ -47,7 +47,6 @@ function useTypingKeys({
 export function TypingTest() {
   const wanted = "the quick brown fox jumped over the lazy dog";
   const inputRef = useRef<HTMLDivElement>(null);
-  const caretTargetRef = useRef<HTMLSpanElement>(null);
   const initialState2 = {
     ...initialState,
     wantedWords: wanted.split(" ")
@@ -56,42 +55,20 @@ export function TypingTest() {
   const { handleReset, handleKeyDown } = useTypingKeys({ dispatch, inputRef });
 
   return (
-    <>
+    <div className="flex flex-column">
       <div
-        className="ba tl pa1 f3 tt-input relative flex flex-wrap"
-        style={{ whiteSpace: "pre-wrap" }}
-        ref={inputRef}
         // tabIndex allows div to get focus
         tabIndex={0}
+        ref={inputRef}
+        className="ba pa2 f3 tt-input"
         onKeyDown={handleKeyDown}
       >
-        {$.typedWords.map((w, i) => (
-          <span key={w + i} className="ma1">
-            <span className="o-50">{w}</span>
-            <span>{$.wantedWords[i].slice(w.length)}</span>
-          </span>
-        ))}
-        {$.wantedWords.slice($.wantedWordI).map((w, i) =>
-          i === 0 ? (
-            <span key={w + i} className="ma1">
-              <span className="o-50" ref={caretTargetRef}>
-                {$.activeWord}
-              </span>
-              <span className="">{w.slice($.wantedCharI)}</span>
-            </span>
-          ) : (
-            <span key={w + i} className="ma1">
-              {w}
-            </span>
-          )
-        )}
-        <Caret caretTargetRef={caretTargetRef} />
+        <Words {...$} />
       </div>
-      <br />
       <button onClick={handleReset}>Reset</button>
-      <br />
-      <br />
+
+      <h2>History</h2>
       <History initialState={initialState2} history={$.history} />
-    </>
+    </div>
   );
 }

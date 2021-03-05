@@ -31,18 +31,17 @@ export const initialState = {
   wantedCharI: 0
 };
 
-export function typingReducer($: State = initialState, action: Action) {
+export function typingReducer($: State = initialState, action: Action): State {
   const wantedWord = $.wantedWords[$.wantedWordI];
-  const lastTypedWord = $.typedWords[$.typedWords.length - 1];
+  const lastTypedWord = _.last($.typedWords);
   const addHistory = () => [...$.history, action];
 
   switch (action.type) {
     case "ADD_CHAR": {
-      const char = action.char;
       return {
         ...$,
         history: addHistory(),
-        activeWord: $.activeWord + char,
+        activeWord: $.activeWord + action.char,
         // While not on last wanted char, keep updating wanted char
         // Otherwise, don't move on to next word or anything
         // TODO: consider having a clamp elswewhere so wantedCharI can be out of bounds
@@ -69,13 +68,16 @@ export function typingReducer($: State = initialState, action: Action) {
       }
     }
     case "DELETE_CHAR": {
+      // Don't adjust `wantedCharI` if active word is much longer
       if ($.activeWord.length > wantedWord.length) {
         return {
           ...$,
           history: addHistory(),
           activeWord: $.activeWord.slice(0, -1)
         };
-      } else {
+      }
+      // Adjust `wantedCharI` if active word is equal or shorter than wanted
+      else {
         const deletingSpace = $.activeWord.length === 0 && $.wantedWordI > 0;
         if (deletingSpace) {
           const wantedWordI = $.wantedWordI - 1;
@@ -83,14 +85,15 @@ export function typingReducer($: State = initialState, action: Action) {
             ...$,
             history: addHistory(),
             typedWords: $.typedWords.slice(0, -1),
-            activeWord: lastTypedWord, // Set old typed word to active word
+            activeWord: lastTypedWord || "", // Set old typed word to active word
             wantedWordI,
-            wantedCharI: lastTypedWord.length
+            wantedCharI: lastTypedWord?.length || 0
           };
         } else {
           return {
             ...$,
             history: addHistory(),
+            // Delete last char
             activeWord: $.activeWord.slice(0, -1),
             wantedCharI: Math.max(0, $.wantedCharI - 1)
           };
@@ -134,6 +137,9 @@ export function typingReducer($: State = initialState, action: Action) {
   }
 }
 
+// TODO: instead of iteratinig through all items, store local state too and
+// use it when going forward, or maybe even store state snapshosts at increments
+// to avoid having to always start from the beginning (might have to convert to a hook)
 export function atHistoryIndex(
   initialState: State,
   history: Action[],
@@ -155,10 +161,10 @@ export function atHistoryIndex(
   // );
 }
 
-export function typed($: State) {
-  return [...$.typedWords, $.activeWord].join(" ");
-}
+// export function typed($: State) {
+//   return [...$.typedWords, $.activeWord].join(" ");
+// }
 
-export function toType($: State) {
-  return $.wantedWords.slice($.wantedWordI).join(" ").slice($.wantedCharI);
-}
+// export function toType($: State) {
+//   return $.wantedWords.slice($.wantedWordI).join(" ").slice($.wantedCharI);
+// }
